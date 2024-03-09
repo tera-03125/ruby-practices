@@ -34,11 +34,9 @@ def take_items(options)
             else
               Dir.glob('*')
             end
-  if options[:reverse]
-    entries.sort.reverse
-  else
-    entries.sort
-  end
+  sorted_entries = entries.sort
+
+  options[:reverse] ? sorted_entries.reverse : sorted_entries
 end
 
 def slice_items(taken_items)
