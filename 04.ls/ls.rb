@@ -5,26 +5,38 @@ require 'optparse'
 NUM_COLUMNS = 3 # 列幅の最大数
 
 def main
-  taken_items = take_items
+  options = parse_options
+  taken_items = take_items(options)
   sliced_items = slice_items(taken_items)
   transposed_items = transpose_items(sliced_items)
   display_items(transposed_items)
 end
 
-def take_items
-  take_hidden_files = false
+def parse_options
+  options = { take_hidden_files: false, reverse: false }
 
   OptionParser.new do |opt|
     opt.on('-a') do
-      take_hidden_files = true
+      options[:take_hidden_files] = true
+    end
+
+    opt.on('-r') do
+      options[:reverse] = true
     end
   end.parse!
 
-  if take_hidden_files
-    Dir.foreach('.').to_a
-  else
-    Dir.glob('*')
-  end.sort
+  options
+end
+
+def take_items(options)
+  entries = if options[:take_hidden_files]
+              Dir.foreach('.').to_a
+            else
+              Dir.glob('*')
+            end
+  sorted_entries = entries.sort
+
+  options[:reverse] ? sorted_entries.reverse : sorted_entries
 end
 
 def slice_items(taken_items)
@@ -33,6 +45,7 @@ def slice_items(taken_items)
                  else
                    taken_items.size / NUM_COLUMNS.ceil + 1 # 最大NUM_COLUMNS列に収める
                  end
+
   taken_items.each_slice(slice_number).to_a
 end
 
